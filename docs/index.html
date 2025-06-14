@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Tool Builder</title>
+    <title>Toolz</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Simple Tool Builder</h1>
-        <p>Describe the tool you want to build and get a matching code snippet. No API key required.</p>
-        <label for="prompt">Tool description</label>
+        <h1>Toolz</h1>
+        <p>Type your idea and get starter code. It's yours to keep.</p>
+        <label for="prompt">Your idea</label>
         <textarea id="prompt" rows="5" placeholder="e.g., a Python script that summarizes text..."></textarea>
-        <button id="generate">Generate Tool</button>
+        <button id="generate">Generate</button>
         <button id="copy" style="display:none;">Copy Code</button>
+        <button id="download" style="display:none;">Download Repo</button>
         <pre id="result"></pre>
-        <p class="small">Need a full repo? Run <code>python generate_repo.py</code> as described in the <a href="../README.md">README</a>.</p>
+        <p class="small">Need a full repo with AI-generated code? Run <code>python generate_repo.py</code> as described in the <a href="../README.md">README</a>.</p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.0/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
