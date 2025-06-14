@@ -5,7 +5,8 @@ Toolz helps you discover free open source technology for your project ideas. Typ
 This repository includes a small web interface (served from the `docs/` folder) and a command-line script, `search_github.py`, that uses the GitHub search API.
 
 ## Web interface
-Open `docs/index.html` in your browser or enable GitHub Pages on this repository. Enter your idea and the page will list the top GitHub projects related to it.
+Open `docs/index.html` in your browser or enable GitHub Pages to host the site. The repository includes a workflow that publishes the `docs/` directory to GitHub Pages whenever changes are pushed to `main`. Once Pages is enabled, your site will be available at `https://<username>.github.io/Toolz/`.
+Enter your idea in the search box and the page will list the top GitHub projects related to it.
 
 ## Command-line usage
 1. Install the dependencies:
