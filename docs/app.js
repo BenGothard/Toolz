@@ -14,11 +14,12 @@ const snippets = [
 ];
 
 const copyBtn = document.getElementById('copy');
+const downloadBtn = document.getElementById('download');
 
 document.getElementById('generate').addEventListener('click', () => {
     const prompt = document.getElementById('prompt').value.toLowerCase();
     if (!prompt.trim()) {
-        alert('Please enter a description.');
+        alert('Please enter an idea.');
         return;
     }
     const resultEl = document.getElementById('result');
@@ -29,11 +30,26 @@ document.getElementById('generate').addEventListener('click', () => {
         resultEl.textContent = '# Example Python script\nprint("Hello, world!")';
     }
     copyBtn.style.display = 'inline-block';
+    downloadBtn.style.display = 'inline-block';
 });
 
 copyBtn.addEventListener('click', () => {
     const code = document.getElementById('result').textContent;
     navigator.clipboard.writeText(code).then(() => {
         alert('Code copied to clipboard');
+    });
+});
+
+downloadBtn.addEventListener('click', () => {
+    const code = document.getElementById('result').textContent;
+    if (!code.trim()) {
+        alert('Generate code first.');
+        return;
+    }
+    const zip = new JSZip();
+    zip.file('README.md', '# Toolz Generated Repo\n\nYour idea: ' + document.getElementById('prompt').value);
+    zip.file('main.py', code);
+    zip.generateAsync({ type: 'blob' }).then(content => {
+        saveAs(content, 'toolz_repo.zip');
     });
 });
