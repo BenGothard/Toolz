@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Simple Tool Builder</h1>
-    <p>Describe the tool you want to build and get a matching code snippet. No API key required.</p>
-    <textarea id="prompt" rows="5" placeholder="e.g., a Python script that summarizes text..."></textarea>
-    <button id="generate">Generate Tool</button>
-    <pre id="result"></pre>
+    <div class="container">
+        <h1>Simple Tool Builder</h1>
+        <p>Describe the tool you want to build and get a matching code snippet. No API key required.</p>
+        <label for="prompt">Tool description</label>
+        <textarea id="prompt" rows="5" placeholder="e.g., a Python script that summarizes text..."></textarea>
+        <button id="generate">Generate Tool</button>
+        <button id="copy" style="display:none;">Copy Code</button>
+        <pre id="result"></pre>
+    </div>
 
     <script src="app.js"></script>
 </body>
