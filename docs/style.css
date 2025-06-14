@@ -2,32 +2,33 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #fafafa;
+    background: #f2f2f2;
 }
 
 .container {
     max-width: 600px;
     margin: 2rem auto;
-    padding: 1rem;
-    text-align: center;
+    background: #fff;
+    padding: 1rem 2rem;
+    border-radius: 4px;
 }
 
-textarea {
+input {
     width: 100%;
-    margin-bottom: 1rem;
+    padding: 0.5rem;
     font-size: 1rem;
 }
 
 button {
+    margin-top: 0.5rem;
     padding: 0.5rem 1rem;
-    font-size: 1rem;
-    margin: 0.5rem 0.25rem;
 }
 
-pre {
-    background-color: #f0f0f0;
-    padding: 1rem;
-    white-space: pre-wrap;
-    min-height: 8rem;
-    margin-top: 1rem;
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 0.5rem 0;
 }
