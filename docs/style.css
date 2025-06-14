@@ -36,3 +36,8 @@ pre {
     min-height: 8rem;
     margin-top: 1rem;
 }
+
+.small {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
