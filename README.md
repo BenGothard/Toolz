@@ -20,3 +20,6 @@ Enter your idea in the search box and the page will list the top GitHub projects
    The script prints links to relevant repositories.
 
 Set the `GITHUB_TOKEN` environment variable to use an API token (optional but recommended to avoid rate limits).
+
+## Troubleshooting
+If changes to the backend appear on GitHub but the published site still shows an old version, your browser may be caching the files. The `index.html` page disables caching, but some browsers may still require a hard refresh. Try reloading with `Ctrl+Shift+R` (or `Cmd+Shift+R` on macOS) to force the latest UI.
