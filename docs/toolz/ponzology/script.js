@@ -22,18 +22,19 @@ const patterns = [
 /locked\s+liquidity\s+forever/i
 ];
 
-async function addSummary(term){
- if(!term) return;
- try{
-  term = term.replace(/^\$/,'');
-  const data = await cacheFetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`);
-  if(data.extract && !textEl.value.includes(data.extract)){
-   textEl.value = data.extract + '\n\n' + textEl.value;
-  }
- }catch(e){
-  // ignore summary failures
+async function aiSearchToken(term){
+ if(typeof navigator!=='undefined' && navigator.search && navigator.search.query){
+  try{
+   const result=await navigator.search.query({text:term});
+   if(result && result.tokens && result.tokens.length){
+    const t=result.tokens[0];
+    if(t.contractAddress) return t.contractAddress;
+   }
+  }catch(e){/* ignore AI search failures */}
  }
+ return null;
 }
+
 
 function buildTokenomicsText(desc,supply,meta){
  let text='';
@@ -60,27 +61,30 @@ async function fetchTokenomics(){
  let query=contractEl.value.trim();
  if(!query) return;
  fetchBtn.disabled=true; spinner.hidden=false;
- await addSummary(query);
  let addr=query;
  if(!/^0x[a-fA-F0-9]{40}$/.test(query)){
-  const sym=query.replace(/^\$/,'').toLowerCase();
-  try{
-  const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
-  const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym || c.name.toLowerCase()===sym || c.name.toLowerCase().includes(sym));
-  if(!coin){alert('Token not found'); spinner.hidden=true; fetchBtn.disabled=false; return;}
-  const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`);
-  addr=data.platforms&&data.platforms.ethereum;
-  await addSummary(data.name);
+  addr=await aiSearchToken(query);
   if(!addr){
-    const market=data.market_data||{};
-    const supply={circulating:market.circulating_supply,total:market.total_supply,max:market.max_supply};
-    const meta={name:data.name,symbol:data.symbol,decimals:data.detail_platforms&&data.detail_platforms.ethereum&&data.detail_platforms.ethereum.decimal_place,website:data.links&&data.links.homepage&&data.links.homepage[0]};
-    const desc=data.description&&data.description.en;
-    const text=buildTokenomicsText(desc,supply,meta);
-    if(text) textEl.value=text; else alert('Token description not found');
-    spinner.hidden=true; fetchBtn.disabled=false; return;
-   }
-  }catch(e){alert('Failed to fetch token info'); spinner.hidden=true; fetchBtn.disabled=false; return;}
+   const sym=query.replace(/^\$/,'').toLowerCase();
+   try{
+    const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
+    const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym || c.name.toLowerCase()===sym || c.name.toLowerCase().includes(sym));
+    if(!coin){
+     alert('Token not found'); spinner.hidden=true; fetchBtn.disabled=false; return;
+    }
+    const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`);
+    addr=data.platforms&&data.platforms.ethereum;
+    if(!addr){
+     const market=data.market_data||{};
+     const supply={circulating:market.circulating_supply,total:market.total_supply,max:market.max_supply};
+     const meta={name:data.name,symbol:data.symbol,decimals:data.detail_platforms&&data.detail_platforms.ethereum&&data.detail_platforms.ethereum.decimal_place,website:data.links&&data.links.homepage&&data.links.homepage[0]};
+     const desc=data.description&&data.description.en;
+     const text=buildTokenomicsText(desc,supply,meta);
+     if(text) textEl.value=text; else alert('Token description not found');
+     spinner.hidden=true; fetchBtn.disabled=false; return;
+    }
+   }catch(e){alert('Failed to fetch token info'); spinner.hidden=true; fetchBtn.disabled=false; return;}
+  }
  }
  const fetchEthplorer=async()=>{
   try{
@@ -110,7 +114,6 @@ async function fetchTokenomics(){
   const extra=await fetchEthplorer();
   const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
   if(text) textEl.value=text; else await tryCoinMarketCap(slug);
-  await addSummary(extra.meta && extra.meta.name);
 }catch(e){alert('Failed to fetch tokenomics');}
 spinner.hidden=true; fetchBtn.disabled=false;
 }
