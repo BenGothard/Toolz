@@ -20,6 +20,60 @@ const strengthFlags = [
     'community',
 ];
 
+// Fetch tokenomics text from Coingecko using a contract address. If that fails,
+// try the public CoinMarketCap API.
+document.getElementById('fetch').addEventListener('click', () => {
+    const addr = document.getElementById('contract').value.trim();
+    if (!addr) return;
+
+    const tokenomicsEl = document.getElementById('tokenomics');
+
+    // Helper to query CoinMarketCap when Coingecko has no info
+    const tryCoinMarketCap = (slug) => {
+        if (!slug) {
+            alert('Token description not found');
+            return;
+        }
+
+        fetch(`https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail?slug=${slug}`)
+            .then(r => {
+                if (!r.ok) throw new Error('api error');
+                return r.json();
+            })
+            .then(data => {
+                const desc = data.data && data.data.description;
+                if (desc) {
+                    tokenomicsEl.value = desc;
+                } else {
+                    alert('Token description not found');
+                }
+            })
+            .catch(() => {
+                alert('Failed to fetch tokenomics');
+            });
+    };
+
+    fetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${addr}`)
+        .then(r => {
+            if (!r.ok) throw new Error('api error');
+            return r.json();
+        })
+        .then(data => {
+            const desc = data.description && data.description.en;
+            const slug = data.id;
+            if (desc) {
+                tokenomicsEl.value = desc;
+            } else {
+                tryCoinMarketCap(slug);
+            }
+        })
+        .catch(() => {
+            // If the Coingecko request fails entirely we don't know the slug,
+            // so tokenomics cannot be fetched.
+            alert('Failed to fetch tokenomics');
+        });
+});
+
 // Run the analysis when the button is clicked.
 document.getElementById('run').addEventListener('click', () => {
     const text = document.getElementById('tokenomics').value.toLowerCase();
