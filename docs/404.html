@@ -7,10 +7,9 @@
     <script>
         (function() {
             var path = window.location.pathname;
-            var lower = path.toLowerCase();
-            if (lower.startsWith('/toolz')) {
-                var remainder = path.substring('/toolz'.length);
-                var target = '/Toolz' + remainder + window.location.search + window.location.hash;
+            if (path.startsWith('/Toolz')) {
+                var remainder = path.substring('/Toolz'.length);
+                var target = '/toolz' + remainder + window.location.search + window.location.hash;
                 window.location.replace(target);
             }
         })();

@@ -1,4 +1,4 @@
-import { $, cacheFetch, toggleTheme } from '../util.js';
+import { $, cacheFetch, toggleTheme } from '../../util.js';
 
 const textEl = $('#text');
 const runBtn = $('#run');
