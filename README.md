@@ -2,6 +2,8 @@
 
 Toolz is a collection of lightweight, AI-powered browser tools for crypto investors. Each tool is completely client-side and requires no dependencies or backend.
 
+All pages support dark mode automatically via the user's system preference.
+
 ## Available Tools
 
 - **Ponzology** – analyzes tokenomics descriptions for potentially predatory or unsustainable patterns, highlighting high APY claims and large team allocations. Visit [docs/ponzology](docs/ponzology/) to try it. When fetching tokenomics by contract address, Ponzology now pulls data from Coingecko, CoinMarketCap and the public Ethplorer API so supply information and basic metadata like holder counts are included alongside the description.

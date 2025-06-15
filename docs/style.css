@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 1rem;
     background: #f4f4f4;
+    color: #000;
 }
 
 header {
@@ -43,4 +44,28 @@ header {
 
 h1 {
     margin-top: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1e1e1e;
+        color: #ddd;
+    }
+
+    .tool-list a {
+        color: #66aaff;
+    }
+
+    .tool-button {
+        background: #1c70d6;
+        color: #fff !important;
+    }
+
+    .tool-button:hover {
+        background: #0f406c;
+    }
+
+    .desc {
+        color: #ccc;
+    }
 }
