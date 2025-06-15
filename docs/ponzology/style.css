@@ -50,6 +50,10 @@ button {
     border-radius: 4px;
 }
 
+#fetch {
+    margin-bottom: 0.5rem;
+}
+
 button:hover {
     background: #005a99;
 }
