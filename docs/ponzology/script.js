@@ -10,6 +10,11 @@ const redFlags = [
     { phrase: 'high apy', severity: 2 },
     { phrase: 'risk free', severity: 2 },
     { phrase: 'no risk', severity: 2 },
+    { phrase: 'multi level marketing', severity: 2 },
+    { phrase: 'mlm', severity: 2 },
+    { phrase: 'referral bonus', severity: 1 },
+    { phrase: 'infinite mint', severity: 2 },
+    { phrase: 'no max supply', severity: 2 },
 ];
 
 // Basic positive keywords to highlight potential strengths.
@@ -164,14 +169,43 @@ document.getElementById('run').addEventListener('click', () => {
         severityTotal += 2;
     }
 
+    // Parse basic supply and metadata lines for additional checks
+    const parseNum = (match) => match && parseInt(match[1].replace(/,/g, ''));
+    const totalSupply = parseNum(text.match(/total supply:\s*([\d,]+)/));
+    const maxSupply = parseNum(text.match(/max supply:\s*([\d,]+)/));
+    const holders = parseNum(text.match(/holders:\s*([\d,]+)/));
+    const decimals = parseNum(text.match(/decimals:\s*(\d+)/));
+
+    if (totalSupply && totalSupply > 1e12) {
+        concerns.push('very large total supply');
+        severityTotal += 1;
+    }
+    if (maxSupply !== undefined) {
+        if (totalSupply && totalSupply > maxSupply) {
+            concerns.push('total supply exceeds max supply');
+            severityTotal += 2;
+        }
+    } else {
+        concerns.push('no maximum supply');
+        severityTotal += 1;
+    }
+    if (holders && holders < 50) {
+        concerns.push('very few holders');
+        severityTotal += 1;
+    }
+    if (decimals && decimals > 18) {
+        concerns.push('unusual decimals');
+        severityTotal += 1;
+    }
+
     // Look for positive signs.
     const strengths = strengthFlags.filter(p => text.includes(p));
 
     // Determine rating based on number and severity of concerns.
     let rating = 'Green';
-    if (severityTotal > 2 || concerns.length > 2) {
+    if (severityTotal > 3 || concerns.length > 3) {
         rating = 'Red';
-    } else if (severityTotal > 0) {
+    } else if (severityTotal > 1 || concerns.length > 1) {
         rating = 'Yellow';
     }
 
