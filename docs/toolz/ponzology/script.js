@@ -22,13 +22,34 @@ const patterns = [
 /locked\s+liquidity\s+forever/i
 ];
 
+function isLikelyMatch(token,q){
+ if(!token) return false;
+ if(token.symbol && token.symbol.toLowerCase()===q) return true;
+ if(token.name && token.name.toLowerCase()===q) return true;
+ if(token.name && token.name.toLowerCase().includes(q)) return true;
+ return false;
+}
+
+async function validateTokenMatch(addr, term){
+ try{
+  const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${addr}`);
+  const q=term.replace(/^\$/,'').toLowerCase();
+  if(data.symbol && data.symbol.toLowerCase()===q) return true;
+  if(data.name && data.name.toLowerCase().includes(q)) return true;
+ }catch(e){}
+ return false;
+}
+
 async function aiSearchToken(term){
  if(typeof navigator!=='undefined' && navigator.search && navigator.search.query){
   try{
    const result=await navigator.search.query({text:term});
    if(result && result.tokens && result.tokens.length){
-    const t=result.tokens[0];
-    if(t.contractAddress) return t.contractAddress;
+    const q=term.replace(/^\$/,'').toLowerCase();
+    const token=result.tokens.find(t=>isLikelyMatch(t,q));
+    if(token && token.contractAddress){
+     if(await validateTokenMatch(token.contractAddress,term)) return token.contractAddress;
+    }
    }
   }catch(e){/* ignore AI search failures */}
  }
