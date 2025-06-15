@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        (function() {
+            var path = window.location.pathname;
+            var lower = path.toLowerCase();
+            if (lower.startsWith('/toolz')) {
+                var remainder = path.substring('/toolz'.length);
+                var target = '/Toolz' + remainder + window.location.search + window.location.hash;
+                window.location.replace(target);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>
