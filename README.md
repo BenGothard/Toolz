@@ -1,8 +1,14 @@
 # Toolz
 
+[![GitHub Pages](https://img.shields.io/github/deployments/BenGothard/Toolz/github-pages?label=deploy)](https://github.com/BenGothard/Toolz/actions/workflows/pages.yml)
+[![MIT License](https://img.shields.io/github/license/BenGothard/Toolz)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/BenGothard/Toolz?style=social)](https://github.com/BenGothard/Toolz/stargazers)
+
 Toolz is a collection of lightweight, AI-powered browser tools for crypto investors. Each tool is completely client-side and requires no dependencies or backend.
 
 All pages support dark mode automatically via the user's system preference.
+
+![Ponzology Demo](docs/ponzology/demo.gif)
 
 ## Available Tools
 

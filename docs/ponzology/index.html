@@ -1,30 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ponzology</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ponzology</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="../util.js"></script>
+  <script type="module" src="script.js" defer></script>
 </head>
 <body>
-    <header class="nav-header">
-        <button class="back-button" onclick="location.href='../index.html'">&larr; Back to Toolz</button>
-    </header>
-    <div class="container">
-        <h1>Ponzology</h1>
-        <p class="subtitle">Analyze tokenomics for common red flags.</p>
-        <input type="text" id="contract" placeholder="Paste contract address (optional)">
-        <button id="fetch">Fetch Tokenomics</button>
-        <textarea id="tokenomics" placeholder="Paste tokenomics description here..."></textarea>
-        <button id="run">Run Analysis</button>
-        <div id="results" class="results"></div>
-
-        <div class="feature-request">
-            <h2>Request a Feature</h2>
-            <textarea id="feature-text" placeholder="Describe your idea"></textarea>
-            <button id="feature-submit">Submit Request</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
+  <header class="container">
+    <button class="btn" onclick="location.href='../index.html'">&larr; Toolz</button>
+    <button class="btn" id="theme-toggle">Theme</button>
+  </header>
+  <main class="container">
+    <h1>Ponzology</h1>
+    <p class="subtitle">Tokenomics risk analyzer</p>
+    <textarea id="text" placeholder="Paste tokenomics here..."></textarea>
+    <button class="btn" id="run">Run Analysis</button>
+    <div id="spinner" hidden>Loading...</div>
+    <section id="results"></section>
+  </main>
 </body>
 </html>
