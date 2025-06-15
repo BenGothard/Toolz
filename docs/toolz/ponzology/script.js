@@ -2,6 +2,8 @@ import { $, cacheFetch, toggleTheme } from '../../util.js';
 
 const textEl = $('#text');
 const runBtn = $('#run');
+const fetchBtn = $('#fetch');
+const contractEl = $('#contract');
 const resultsEl = $('#results');
 const spinner = $('#spinner');
 $('#theme-toggle').addEventListener('click', toggleTheme);
@@ -19,6 +21,63 @@ const patterns = [
  /mlm/i,
  /locked\s+liquidity\s+forever/i
 ];
+
+function buildTokenomicsText(desc,supply,meta){
+ let text='';
+ if(desc) text+=desc.trim();
+ const lines=[];
+ if(supply){
+  if(supply.circulating) lines.push(`Circulating Supply: ${supply.circulating}`);
+  if(supply.total) lines.push(`Total Supply: ${supply.total}`);
+  if(supply.max) lines.push(`Max Supply: ${supply.max}`);
+ }
+ if(meta){
+  if(meta.holders) lines.push(`Holders: ${meta.holders}`);
+  if(meta.decimals) lines.push(`Decimals: ${meta.decimals}`);
+  if(meta.website) lines.push(`Website: ${meta.website}`);
+ }
+ if(lines.length){
+  if(text) text+='\n\n';
+  text+=lines.join('\n');
+ }
+ return text;
+}
+
+async function fetchTokenomics(){
+ const addr=contractEl.value.trim();
+ if(!addr) return;
+ fetchBtn.disabled=true; spinner.hidden=false;
+ const fetchEthplorer=async()=>{
+  try{
+   const data=await cacheFetch(`https://api.ethplorer.io/getTokenInfo/${addr}?apiKey=freekey`);
+   return{meta:{name:data.name,symbol:data.symbol,decimals:data.decimals,holders:data.holdersCount,website:data.website},supply:{total:data.totalSupply}};
+  }catch(e){return{};}
+ };
+ const tryCoinMarketCap=async(slug)=>{
+  if(!slug){alert('Token description not found');return;}
+  try{
+   const data=await cacheFetch(`https://api.coinmarketcap.com/data-api/v3/cryptocurrency/detail?slug=${slug}`);
+   const root=data.data||{};
+   const desc=root.description;
+   const sd=root.supplyDetails||{};
+   const supply={circulating:sd.circulatingSupply&&sd.circulatingSupply.value,total:sd.totalSupply&&sd.totalSupply.value,max:sd.maxSupply&&sd.maxSupply.value};
+   const extra=await fetchEthplorer();
+   const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
+   if(text) textEl.value=text; else alert('Token description not found');
+  }catch(e){alert('Failed to fetch tokenomics');}
+ };
+ try{
+  const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${addr}`);
+  const desc=data.description&&data.description.en;
+  const slug=data.id;
+  const market=data.market_data||{};
+  const supply={circulating:market.circulating_supply,total:market.total_supply,max:market.max_supply};
+  const extra=await fetchEthplorer();
+  const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
+  if(text) textEl.value=text; else await tryCoinMarketCap(slug);
+ }catch(e){alert('Failed to fetch tokenomics');}
+ spinner.hidden=true; fetchBtn.disabled=false;
+}
 
 function render(res){
  const badge='badge-'+res.rating.toLowerCase();
@@ -55,6 +114,7 @@ async function run(){
 }
 
 runBtn.addEventListener('click', run);
+if(fetchBtn) fetchBtn.addEventListener('click', fetchTokenomics);
 
 window.addEventListener('load', ()=>{
  const hash=location.hash.slice(1);
