@@ -1,25 +1,22 @@
-# Toolz
+# Open Model Search
 
-Toolz helps you discover free open source technology for your project ideas. Type a description of the tool you want and Toolz searches GitHub for popular repositories that match your keywords.
+This project provides a simple search box that aggregates responses from several open source language models. You can run a small Flask server locally and query multiple models to get the best free answer to your question.
 
-This repository includes a small web interface (served from the `docs/` folder) and a command-line script, `search_github.py`, that uses the GitHub search API.
+## Quick start
 
-## Web interface
-Open `docs/index.html` in your browser or enable GitHub Pages to host the site. The repository includes a workflow that publishes the `docs/` directory to GitHub Pages whenever changes are pushed to `main`. Once Pages is enabled, your site will be available at `https://<username>.github.io/Toolz/`.
-Enter your idea in the search box and the page will list the top GitHub projects related to it.
-
-## Command-line usage
 1. Install the dependencies:
    ```bash
-   pip install requests
+   pip install -r requirements.txt
    ```
-2. Run the script with your query:
+2. Set any API tokens for remote models (optional). For example:
    ```bash
-   python search_github.py "static site generator"
+   export HF_TOKEN=your_huggingface_token
+   export DEEPSEEK_TOKEN=your_deepseek_token
    ```
-   The script prints links to relevant repositories.
+3. Run the server:
+   ```bash
+   python server.py
+   ```
+4. Open `docs/index.html` in your browser and enter a question.
 
-Set the `GITHUB_TOKEN` environment variable to use an API token (optional but recommended to avoid rate limits).
-
-## Troubleshooting
-If changes to the backend appear on GitHub but the published site still shows an old version, your browser may be caching the files. The `index.html` page disables caching, but some browsers may still require a hard refresh. Try reloading with `Ctrl+Shift+R` (or `Cmd+Shift+R` on macOS) to force the latest UI.
+The server queries each configured model in sequence and returns the first successful response. You can modify `aggregator.py` to add more models or change the selection logic.
