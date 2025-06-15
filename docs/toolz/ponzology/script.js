@@ -2,7 +2,7 @@ import { $, cacheFetch, toggleTheme } from '../../util.js';
 
 const textEl = $('#text');
 const runBtn = $('#run');
-const fetchBtn = $('#fetch');
+const searchBtn = $('#search');
 const contractEl = $('#contract');
 const resultsEl = $('#results');
 const spinner = $('#spinner');
@@ -78,10 +78,10 @@ function buildTokenomicsText(desc,supply,meta){
  return text;
 }
 
-async function fetchTokenomics(){
+async function search(){
  let query=contractEl.value.trim();
  if(!query) return;
- fetchBtn.disabled=true; spinner.hidden=false;
+ searchBtn.disabled=true; spinner.hidden=false;
  let addr=query;
  if(!/^0x[a-fA-F0-9]{40}$/.test(query)){
   addr=await aiSearchToken(query);
@@ -91,7 +91,7 @@ async function fetchTokenomics(){
     const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
     const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym || c.name.toLowerCase()===sym || c.name.toLowerCase().includes(sym));
     if(!coin){
-     alert('Token not found'); spinner.hidden=true; fetchBtn.disabled=false; return;
+     alert('Token not found'); spinner.hidden=true; searchBtn.disabled=false; return;
     }
     const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`);
     addr=data.platforms&&data.platforms.ethereum;
@@ -102,9 +102,9 @@ async function fetchTokenomics(){
      const desc=data.description&&data.description.en;
      const text=buildTokenomicsText(desc,supply,meta);
      if(text) textEl.value=text; else alert('Token description not found');
-     spinner.hidden=true; fetchBtn.disabled=false; return;
+     spinner.hidden=true; searchBtn.disabled=false; return;
     }
-   }catch(e){alert('Failed to fetch token info'); spinner.hidden=true; fetchBtn.disabled=false; return;}
+   }catch(e){alert('Failed to fetch token info'); spinner.hidden=true; searchBtn.disabled=false; return;}
   }
  }
  const fetchEthplorer=async()=>{
@@ -124,8 +124,8 @@ async function fetchTokenomics(){
    const extra=await fetchEthplorer();
    const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
    if(text) textEl.value=text; else alert('Token description not found');
-  }catch(e){alert('Failed to fetch tokenomics');}
- };
+  }catch(e){alert('Failed to search');}
+};
  try{
   const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/ethereum/contract/${addr}`);
   const desc=data.description&&data.description.en;
@@ -135,8 +135,8 @@ async function fetchTokenomics(){
   const extra=await fetchEthplorer();
   const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
   if(text) textEl.value=text; else await tryCoinMarketCap(slug);
-}catch(e){alert('Failed to fetch tokenomics');}
-spinner.hidden=true; fetchBtn.disabled=false;
+}catch(e){alert('Failed to search');}
+spinner.hidden=true; searchBtn.disabled=false;
 }
 
 function render(res){
@@ -174,7 +174,7 @@ async function run(){
 }
 
 runBtn.addEventListener('click', run);
-if(fetchBtn) fetchBtn.addEventListener('click', fetchTokenomics);
+if(searchBtn) searchBtn.addEventListener('click', search);
 
 window.addEventListener('load', ()=>{
  const hash=location.hash.slice(1);
