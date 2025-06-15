@@ -1,12 +1,15 @@
-// List of phrases that may indicate problematic tokenomics.
-// Each phrase has an associated severity used for rating.
+// Phrases that may signal questionable tokenomics.
+// Each has an associated severity that feeds into the overall rating.
 const redFlags = [
     { phrase: 'guaranteed returns', severity: 2 },
+    { phrase: 'guaranteed profit', severity: 2 },
+    { phrase: 'double your money', severity: 2 },
     { phrase: 'auto-staking', severity: 1 },
     { phrase: 'reflection rewards', severity: 1 },
-    { phrase: '90% team', severity: 2 },
+    { phrase: 'whale tax', severity: 1 },
     { phrase: 'high apy', severity: 2 },
     { phrase: 'risk free', severity: 2 },
+    { phrase: 'no risk', severity: 2 },
 ];
 
 // Basic positive keywords to highlight potential strengths.
@@ -23,7 +26,7 @@ document.getElementById('run').addEventListener('click', () => {
     const concerns = [];
     let severityTotal = 0;
 
-    // Check for red flag phrases.
+    // Check for simple phrase matches.
     redFlags.forEach(flag => {
         if (text.includes(flag.phrase)) {
             concerns.push(flag.phrase);
@@ -31,10 +34,24 @@ document.getElementById('run').addEventListener('click', () => {
         }
     });
 
+    // Detect extremely high APY/returns percentages.
+    const apyMatch = text.match(/(\d{3,})%\s*(?:apy|apr|returns?)/);
+    if (apyMatch && parseInt(apyMatch[1]) >= 1000) {
+        concerns.push(apyMatch[0]);
+        severityTotal += 2;
+    }
+
+    // Detect large team allocations (>=50%).
+    const teamMatch = text.match(/(\d{1,3})%[^\.]{0,20}team/);
+    if (teamMatch && parseInt(teamMatch[1]) >= 50) {
+        concerns.push(teamMatch[0]);
+        severityTotal += 2;
+    }
+
     // Look for positive signs.
     const strengths = strengthFlags.filter(p => text.includes(p));
 
-    // Determine rating based on number/severity of concerns.
+    // Determine rating based on number and severity of concerns.
     let rating = 'Green';
     if (severityTotal > 2 || concerns.length > 2) {
         rating = 'Red';
@@ -60,7 +77,7 @@ document.getElementById('run').addEventListener('click', () => {
         html += '<p>No major red flags found.</p>';
     }
 
-    html += '<h3>Overall Rating: ' + rating + '</h3>';
+    html += '<h3 class="rating ' + rating.toLowerCase() + '">Overall Rating: ' + rating + '</h3>';
 
     document.getElementById('results').innerHTML = html;
 });
