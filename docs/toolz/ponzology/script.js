@@ -3,6 +3,7 @@ import { $, cacheFetch, toggleTheme } from '../../util.js';
 const textEl = $('#text');
 const runBtn = $('#run');
 const fetchBtn = $('#fetch');
+const searchBtn = $('#search');
 const contractEl = $('#contract');
 const resultsEl = $('#results');
 const spinner = $('#spinner');
@@ -19,8 +20,26 @@ const patterns = [
  /burn\s+to\s+earn/i,
  /referral/i,
  /mlm/i,
- /locked\s+liquidity\s+forever/i
+/locked\s+liquidity\s+forever/i
 ];
+
+async function searchToken(){
+ const query = contractEl.value.trim();
+ if(!query) return;
+ searchBtn.disabled = true; spinner.hidden = false;
+ try{
+  const term = query.replace(/^\$/,'');
+  const data = await cacheFetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`);
+  if(data.extract){
+   textEl.value = data.extract + '\n\n' + textEl.value;
+  }else{
+   alert('No summary found');
+  }
+ }catch(e){
+  alert('Failed to fetch summary');
+ }
+ spinner.hidden = true; searchBtn.disabled = false;
+}
 
 function buildTokenomicsText(desc,supply,meta){
  let text='';
@@ -135,6 +154,7 @@ async function run(){
 
 runBtn.addEventListener('click', run);
 if(fetchBtn) fetchBtn.addEventListener('click', fetchTokenomics);
+if(searchBtn) searchBtn.addEventListener('click', searchToken);
 
 window.addEventListener('load', ()=>{
  const hash=location.hash.slice(1);
