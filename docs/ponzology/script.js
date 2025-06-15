@@ -231,3 +231,46 @@ document.getElementById('run').addEventListener('click', () => {
 
     document.getElementById('results').innerHTML = html;
 });
+
+// Submit a feature request to the repository using the GitHub API.
+const featureBtn = document.getElementById('feature-submit');
+if (featureBtn) {
+    featureBtn.addEventListener('click', () => {
+        const text = document.getElementById('feature-text').value.trim();
+        if (!text) {
+            alert('Please enter a feature request.');
+            return;
+        }
+
+        let token = localStorage.getItem('ghToken') || '';
+        token = prompt('GitHub token with repo access:', token);
+        if (!token) return;
+        localStorage.setItem('ghToken', token);
+
+        const repo = 'BenGothard/Toolz';
+        const path = `feature-requests/${Date.now()}.txt`;
+        const body = {
+            message: 'Add feature request',
+            content: btoa(unescape(encodeURIComponent(text)))
+        };
+
+        fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'token ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(r => r.json().then(d => ({ok: r.ok, data: d})))
+        .then(res => {
+            if (res.ok) {
+                alert('Feature request submitted!');
+                document.getElementById('feature-text').value = '';
+            } else {
+                alert(res.data.message || 'Failed to submit request');
+            }
+        })
+        .catch(() => alert('Network error while submitting request'));
+    });
+}
