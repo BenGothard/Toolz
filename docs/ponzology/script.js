@@ -21,20 +21,26 @@ const strengthFlags = [
 ];
 
 // Combine description with basic supply info into a single text block
-function buildTokenomicsText(desc, supply) {
+// Build combined text from description, supply details and any extra metadata.
+function buildTokenomicsText(desc, supply, meta) {
     let text = '';
     if (desc) {
         text += desc.trim();
     }
+    const lines = [];
     if (supply) {
-        const lines = [];
         if (supply.circulating) lines.push(`Circulating Supply: ${supply.circulating}`);
         if (supply.total) lines.push(`Total Supply: ${supply.total}`);
         if (supply.max) lines.push(`Max Supply: ${supply.max}`);
-        if (lines.length) {
-            if (text) text += '\n\n';
-            text += lines.join('\n');
-        }
+    }
+    if (meta) {
+        if (meta.holders) lines.push(`Holders: ${meta.holders}`);
+        if (meta.decimals) lines.push(`Decimals: ${meta.decimals}`);
+        if (meta.website) lines.push(`Website: ${meta.website}`);
+    }
+    if (lines.length) {
+        if (text) text += '\n\n';
+        text += lines.join('\n');
     }
     return text;
 }
@@ -46,6 +52,24 @@ document.getElementById('fetch').addEventListener('click', () => {
     if (!addr) return;
 
     const tokenomicsEl = document.getElementById('tokenomics');
+
+    const fetchEthplorer = () => {
+        return fetch(`https://api.ethplorer.io/getTokenInfo/${addr}?apiKey=freekey`)
+            .then(r => { if (!r.ok) throw new Error('api error'); return r.json(); })
+            .then(data => ({
+                meta: {
+                    name: data.name,
+                    symbol: data.symbol,
+                    decimals: data.decimals,
+                    holders: data.holdersCount,
+                    website: data.website,
+                },
+                supply: {
+                    total: data.totalSupply,
+                },
+            }))
+            .catch(() => ({}));
+    };
 
     // Helper to query CoinMarketCap when Coingecko has no info
     const tryCoinMarketCap = (slug) => {
@@ -68,12 +92,14 @@ document.getElementById('fetch').addEventListener('click', () => {
                     total: sd.totalSupply && sd.totalSupply.value,
                     max: sd.maxSupply && sd.maxSupply.value,
                 };
-                const text = buildTokenomicsText(desc, supply);
-                if (text) {
-                    tokenomicsEl.value = text;
-                } else {
-                    alert('Token description not found');
-                }
+                fetchEthplorer().then(extra => {
+                    const text = buildTokenomicsText(desc, { ...supply, ...extra.supply }, extra.meta);
+                    if (text) {
+                        tokenomicsEl.value = text;
+                    } else {
+                        alert('Token description not found');
+                    }
+                });
             })
             .catch(() => {
                 alert('Failed to fetch tokenomics');
@@ -94,12 +120,14 @@ document.getElementById('fetch').addEventListener('click', () => {
                 total: market.total_supply,
                 max: market.max_supply,
             };
-            const text = buildTokenomicsText(desc, supply);
-            if (text) {
-                tokenomicsEl.value = text;
-            } else {
-                tryCoinMarketCap(slug);
-            }
+            fetchEthplorer().then(extra => {
+                const text = buildTokenomicsText(desc, { ...supply, ...extra.supply }, extra.meta);
+                if (text) {
+                    tokenomicsEl.value = text;
+                } else {
+                    tryCoinMarketCap(slug);
+                }
+            });
         })
         .catch(() => {
             // If the Coingecko request fails entirely we don't know the slug,
