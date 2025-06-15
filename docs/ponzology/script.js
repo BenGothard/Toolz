@@ -20,6 +20,25 @@ const strengthFlags = [
     'community',
 ];
 
+// Combine description with basic supply info into a single text block
+function buildTokenomicsText(desc, supply) {
+    let text = '';
+    if (desc) {
+        text += desc.trim();
+    }
+    if (supply) {
+        const lines = [];
+        if (supply.circulating) lines.push(`Circulating Supply: ${supply.circulating}`);
+        if (supply.total) lines.push(`Total Supply: ${supply.total}`);
+        if (supply.max) lines.push(`Max Supply: ${supply.max}`);
+        if (lines.length) {
+            if (text) text += '\n\n';
+            text += lines.join('\n');
+        }
+    }
+    return text;
+}
+
 // Fetch tokenomics text from Coingecko using a contract address. If that fails,
 // try the public CoinMarketCap API.
 document.getElementById('fetch').addEventListener('click', () => {
@@ -41,9 +60,17 @@ document.getElementById('fetch').addEventListener('click', () => {
                 return r.json();
             })
             .then(data => {
-                const desc = data.data && data.data.description;
-                if (desc) {
-                    tokenomicsEl.value = desc;
+                const root = data.data || {};
+                const desc = root.description;
+                const sd = root.supplyDetails || {};
+                const supply = {
+                    circulating: sd.circulatingSupply && sd.circulatingSupply.value,
+                    total: sd.totalSupply && sd.totalSupply.value,
+                    max: sd.maxSupply && sd.maxSupply.value,
+                };
+                const text = buildTokenomicsText(desc, supply);
+                if (text) {
+                    tokenomicsEl.value = text;
                 } else {
                     alert('Token description not found');
                 }
@@ -61,8 +88,15 @@ document.getElementById('fetch').addEventListener('click', () => {
         .then(data => {
             const desc = data.description && data.description.en;
             const slug = data.id;
-            if (desc) {
-                tokenomicsEl.value = desc;
+            const market = data.market_data || {};
+            const supply = {
+                circulating: market.circulating_supply,
+                total: market.total_supply,
+                max: market.max_supply,
+            };
+            const text = buildTokenomicsText(desc, supply);
+            if (text) {
+                tokenomicsEl.value = text;
             } else {
                 tryCoinMarketCap(slug);
             }
