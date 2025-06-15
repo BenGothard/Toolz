@@ -3,7 +3,6 @@ import { $, cacheFetch, toggleTheme } from '../../util.js';
 const textEl = $('#text');
 const runBtn = $('#run');
 const fetchBtn = $('#fetch');
-const searchBtn = $('#search');
 const contractEl = $('#contract');
 const resultsEl = $('#results');
 const spinner = $('#spinner');
@@ -23,22 +22,17 @@ const patterns = [
 /locked\s+liquidity\s+forever/i
 ];
 
-async function searchToken(){
- const query = contractEl.value.trim();
- if(!query) return;
- searchBtn.disabled = true; spinner.hidden = false;
+async function addSummary(term){
+ if(!term) return;
  try{
-  const term = query.replace(/^\$/,'');
+  term = term.replace(/^\$/,'');
   const data = await cacheFetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`);
-  if(data.extract){
+  if(data.extract && !textEl.value.includes(data.extract)){
    textEl.value = data.extract + '\n\n' + textEl.value;
-  }else{
-   alert('No summary found');
   }
  }catch(e){
-  alert('Failed to fetch summary');
+  // ignore summary failures
  }
- spinner.hidden = true; searchBtn.disabled = false;
 }
 
 function buildTokenomicsText(desc,supply,meta){
@@ -66,16 +60,18 @@ async function fetchTokenomics(){
  let query=contractEl.value.trim();
  if(!query) return;
  fetchBtn.disabled=true; spinner.hidden=false;
+ await addSummary(query);
  let addr=query;
  if(!/^0x[a-fA-F0-9]{40}$/.test(query)){
   const sym=query.replace(/^\$/,'').toLowerCase();
   try{
-   const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${sym}`);
-   const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym);
-   if(!coin){alert('Token not found'); spinner.hidden=true; fetchBtn.disabled=false; return;}
-   const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`);
-   addr=data.platforms&&data.platforms.ethereum;
-   if(!addr){
+  const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
+  const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym || c.name.toLowerCase()===sym || c.name.toLowerCase().includes(sym));
+  if(!coin){alert('Token not found'); spinner.hidden=true; fetchBtn.disabled=false; return;}
+  const data=await cacheFetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`);
+  addr=data.platforms&&data.platforms.ethereum;
+  await addSummary(data.name);
+  if(!addr){
     const market=data.market_data||{};
     const supply={circulating:market.circulating_supply,total:market.total_supply,max:market.max_supply};
     const meta={name:data.name,symbol:data.symbol,decimals:data.detail_platforms&&data.detail_platforms.ethereum&&data.detail_platforms.ethereum.decimal_place,website:data.links&&data.links.homepage&&data.links.homepage[0]};
@@ -114,8 +110,9 @@ async function fetchTokenomics(){
   const extra=await fetchEthplorer();
   const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
   if(text) textEl.value=text; else await tryCoinMarketCap(slug);
- }catch(e){alert('Failed to fetch tokenomics');}
- spinner.hidden=true; fetchBtn.disabled=false;
+  await addSummary(extra.meta && extra.meta.name);
+}catch(e){alert('Failed to fetch tokenomics');}
+spinner.hidden=true; fetchBtn.disabled=false;
 }
 
 function render(res){
@@ -154,7 +151,6 @@ async function run(){
 
 runBtn.addEventListener('click', run);
 if(fetchBtn) fetchBtn.addEventListener('click', fetchTokenomics);
-if(searchBtn) searchBtn.addEventListener('click', searchToken);
 
 window.addEventListener('load', ()=>{
  const hash=location.hash.slice(1);
