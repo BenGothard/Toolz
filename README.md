@@ -15,8 +15,8 @@ python3 -m http.server
 1. Choose a tool from the drop-down menu on the page.
 2. Enter or paste text into the input box.
 3. Click **Run** to execute the selected agent.
-4. Watch the status panel under the selector for progress updates.
-5. The agent's output will appear below the input field.
+4. Watch the status message under the selector for progress updates.
+5. Results will appear in the output panel once the agent finishes.
 
 ## Adding Agents
 

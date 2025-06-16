@@ -7,6 +7,7 @@ const inputArea = document.getElementById('inputText');
 const outputArea = document.getElementById('outputArea');
 const select = document.getElementById('agentSelect');
 const instructionBox = document.getElementById("instructionBox");
+const statusPanel = document.getElementById('statusPanel');
 
 const agentInstructions = {
   summarize_agent: "Enter text to summarize.",
@@ -30,17 +31,25 @@ function updateInstruction(name) {
   select.addEventListener("change", () => updateInstruction(select.value));
 
   runButton.addEventListener('click', async () => {
+    statusPanel.textContent = 'Running...';
+    runButton.disabled = true;
     const agentName = select.value;
     const agent = agents.find(a => a.name === agentName);
     if (!agent) {
       outputArea.textContent = 'Agent not found';
+      statusPanel.textContent = '';
+      runButton.disabled = false;
       return;
     }
     try {
       const result = await runAgent(agent, { text: inputArea.value }, perfToggle.checked);
       outputArea.textContent = JSON.stringify(result, null, 2);
+      statusPanel.textContent = 'Done';
     } catch (err) {
       outputArea.textContent = 'Error: ' + err.message;
+      statusPanel.textContent = 'Failed';
+    } finally {
+      runButton.disabled = false;
     }
   });
 })();
