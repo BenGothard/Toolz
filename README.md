@@ -26,6 +26,11 @@ Agents live in the `agents/` directory and register themselves via `registerAgen
 
 Push the repository to GitHub and enable **GitHub Pages** in the repository settings. Ensure the `.nojekyll` file is present.
 
+A GitHub Actions workflow is provided in `.github/workflows/deploy.yml`. The
+workflow automatically deploys the `main` branch to GitHub Pages whenever you
+push updates. Simply push the repository to GitHub and wait for the workflow to
+finish before visiting your page.
+
 ## Privacy vs Performance
 
 The checkbox on the main page toggles performance mode. When disabled, all agents run locally. When enabled, agents may opt to use cloud fallbacks.
