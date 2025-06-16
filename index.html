@@ -19,8 +19,13 @@
         <span>Performance Mode</span>
       </label>
     </section>
-    <section id="tools" class="space-y-4"></section>
+    <section class="mb-4 flex items-center space-x-2">
+      <select id="agentSelect" class="border p-2"></select>
+      <button id="runButton" class="bg-blue-500 text-white px-2 py-1">Run</button>
+    </section>
+    <textarea id="inputText" class="w-full border p-2" rows="4" placeholder="Type your request here..."></textarea>
+    <pre id="outputArea" class="mt-2 bg-gray-100 p-2"></pre>
   </div>
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/simple_ui.js"></script>
 </body>
 </html>
