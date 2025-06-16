@@ -1,19 +1,27 @@
 # Toolz
 
-[![GitHub Pages](https://img.shields.io/github/deployments/BenGothard/Toolz/github-pages?label=deploy)](https://github.com/BenGothard/Toolz/actions/workflows/pages.yml)
-[![MIT License](https://img.shields.io/github/license/BenGothard/Toolz)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/BenGothard/Toolz?style=social)](https://github.com/BenGothard/Toolz/stargazers)
+Toolz is a collection of browser-native AI utilities. All models run in the user's browser using [Transformers.js](https://github.com/xenova/transformers.js) and browser APIs. No servers or API keys are required.
 
-Toolz is a collection of lightweight, AI-powered browser tools for crypto investors. Each tool is completely client-side and requires no dependencies or backend.
+## Running Locally
 
-All pages support dark mode automatically via the user's system preference.
+Simply open `index.html` in any modern browser. For development you can run a simple server:
 
-![Ponzology Demo](docs/toolz/ponzology/demo.gif)
+```bash
+python3 -m http.server
+```
 
-## Available Tools
+## Adding Agents
 
- - **Ponzology** – analyzes tokenomics descriptions for potentially predatory or unsustainable patterns, highlighting high APY claims, large team allocations and other irregularities. Visit [docs/toolz/ponzology](docs/toolz/ponzology/) to try it. When fetching tokenomics by contract address, $CASHTAG or project name, Ponzology first tries your browser's AI search to find the most relevant token. The result is validated against Coingecko data to avoid hallucinated matches. If validation fails, the tool falls back to Coingecko, CoinMarketCap and the public Ethplorer API so supply information and basic metadata like holder counts are included alongside the description. The analysis checks for unrealistic supply numbers, missing max supply and other warning signs.
+Agents live in the `agents/` directory and register themselves via `registerAgent` from `js/agent_loader.js`.
 
-The project is designed so new tools can be added easily under the `docs/` directory. Simply create a folder for your tool containing an `index.html`, `style.css`, and `script.js`.
+## Deployment
 
-The site is served from the `/toolz` path on GitHub Pages.
+Push the repository to GitHub and enable **GitHub Pages** in the repository settings. Ensure the `.nojekyll` file is present.
+
+## Privacy vs Performance
+
+The checkbox on the main page toggles performance mode. When disabled, all agents run locally. When enabled, agents may opt to use cloud fallbacks.
+
+## Contributing
+
+Pull requests adding new agents or improving the UI are welcome.
