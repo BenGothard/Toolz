@@ -6,13 +6,16 @@ const runButton = document.getElementById('runButton');
 const inputArea = document.getElementById('inputText');
 const outputArea = document.getElementById('outputArea');
 const select = document.getElementById('agentSelect');
-const statusTerminal = document.getElementById('statusTerminal');
+const instructionBox = document.getElementById("instructionBox");
 
-function logStatus(message) {
-  const lines = statusTerminal.textContent.split('\n').filter(Boolean);
-  lines.push(message);
-  while (lines.length > 3) lines.shift();
-  statusTerminal.textContent = lines.join('\n');
+const agentInstructions = {
+  summarize_agent: "Enter text to summarize.",
+  sentiment_agent: "Enter text to analyze sentiment.",
+  embed_agent: "Enter text to embed into a vector."
+};
+
+function updateInstruction(name) {
+  instructionBox.textContent = agentInstructions[name] || "";
 }
 
 (async () => {
@@ -23,23 +26,21 @@ function logStatus(message) {
     option.textContent = agent.name;
     select.appendChild(option);
   });
+  updateInstruction(select.value);
+  select.addEventListener("change", () => updateInstruction(select.value));
 
   runButton.addEventListener('click', async () => {
     const agentName = select.value;
     const agent = agents.find(a => a.name === agentName);
     if (!agent) {
       outputArea.textContent = 'Agent not found';
-      logStatus('Agent not found');
       return;
     }
-    logStatus(`Running ${agentName}...`);
     try {
       const result = await runAgent(agent, { text: inputArea.value }, perfToggle.checked);
       outputArea.textContent = JSON.stringify(result, null, 2);
-      logStatus('Done');
     } catch (err) {
       outputArea.textContent = 'Error: ' + err.message;
-      logStatus('Error: ' + err.message);
     }
   });
 })();
