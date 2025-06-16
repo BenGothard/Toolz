@@ -17,14 +17,6 @@ This file documents the available agents and their interfaces.
 - **Output:** `{ label: string, score: number }`
 - **Fallback:** none
 
-## speech_agent
-- **Purpose:** Speech to text using browser API.
-- **Model:** Browser SpeechRecognition API.
-- **Input:** none
-- **Output:** `{ text: string }`
-- **Fallback:** none
-- **Runtime:** Microphone permissions required.
-
 ## embed_agent
 - **Purpose:** Generate vector embeddings and store them.
 - **Model:** `all-MiniLM-L6-v2` via Transformers.js CDN.
