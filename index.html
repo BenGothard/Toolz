@@ -20,10 +20,12 @@
       </label>
       <p class="text-xs text-gray-400">When disabled, agents run locally. Enabling may use cloud fallbacks for better performance.</p>
     </section>
-    <section class="mb-4 flex items-center space-x-2">
+    <section class="mb-2 flex items-center space-x-2">
       <select id="agentSelect" class="border p-2"></select>
       <button id="runButton" class="bg-blue-500 text-white px-2 py-1">Run</button>
     </section>
+    <p class="text-xs text-gray-400 mb-4">Select a tool, enter text, then press
+      <strong>Run</strong> to execute the agent.</p>
     <textarea id="inputText" class="w-full border p-2 bg-gray-800 text-gray-100" rows="4" placeholder="Type your request here..."></textarea>
     <pre id="outputArea" class="mt-2 bg-gray-800 p-2"></pre>
   </div>
