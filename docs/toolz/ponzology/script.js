@@ -90,8 +90,12 @@ async function search(){
   if(!addr){
    const sym=query.replace(/^\$/,'').toLowerCase();
    try{
-    const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
-    const coin=(search.coins||[]).find(c=>c.symbol.toLowerCase()===sym || c.name.toLowerCase()===sym || c.name.toLowerCase().includes(sym));
+   const search=await cacheFetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(sym)}`);
+   const coins = search.coins || [];
+   const regex = new RegExp(`\\b${sym}\\b`, 'i');
+   const coin = coins.find(c => c.symbol.toLowerCase() === sym)
+              || coins.find(c => c.name.toLowerCase() === sym)
+              || coins.find(c => regex.test(c.name));
     if(!coin){
      alert('Token not found'); spinner.hidden=true; searchBtn.disabled=false; return;
     }
