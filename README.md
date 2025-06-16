@@ -10,6 +10,13 @@ Simply open `index.html` in any modern browser. For development you can run a si
 python3 -m http.server
 ```
 
+## Using the Interface
+
+1. Choose a tool from the drop-down menu on the page.
+2. Enter or paste text into the input box.
+3. Click **Run** to execute the selected agent.
+4. The agent's output will appear below the input field.
+
 ## Adding Agents
 
 Agents live in the `agents/` directory and register themselves via `registerAgent` from `js/agent_loader.js`.
