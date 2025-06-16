@@ -1,5 +1,7 @@
 import { $, cacheFetch, toggleTheme } from '../../util.js';
 
+const ETHERSCAN_API_KEY = 'YourApiKeyToken'; // replace with real key for more data
+
 const textEl = $('#text');
 const runBtn = $('#run');
 const searchBtn = $('#search');
@@ -107,12 +109,22 @@ async function search(){
    }catch(e){alert('Failed to fetch token info'); spinner.hidden=true; searchBtn.disabled=false; return;}
   }
  }
- const fetchEthplorer=async()=>{
+const fetchEthplorer=async()=>{
   try{
    const data=await cacheFetch(`https://api.ethplorer.io/getTokenInfo/${addr}?apiKey=freekey`);
    return{meta:{name:data.name,symbol:data.symbol,decimals:data.decimals,holders:data.holdersCount,website:data.website},supply:{total:data.totalSupply}};
   }catch(e){return{};}
- };
+};
+
+const fetchEtherscan=async()=>{
+  try{
+   const info=await cacheFetch(`https://api.etherscan.io/api?module=token&action=tokeninfo&contractaddress=${addr}&apikey=${ETHERSCAN_API_KEY}`);
+   const supplyRes=await cacheFetch(`https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=${addr}&apikey=${ETHERSCAN_API_KEY}`);
+   const meta=info.status==='1'?{name:info.result.tokenName,symbol:info.result.tokenSymbol,decimals:parseInt(info.result.tokenDecimal)}:{};
+   const supply=supplyRes.status==='1'?{total:supplyRes.result}:{};
+   return{meta,supply};
+  }catch(e){return{};}
+};
  const tryCoinMarketCap=async(slug)=>{
   if(!slug){alert('Token description not found');return;}
   try{
@@ -121,9 +133,10 @@ async function search(){
    const desc=root.description;
    const sd=root.supplyDetails||{};
    const supply={circulating:sd.circulatingSupply&&sd.circulatingSupply.value,total:sd.totalSupply&&sd.totalSupply.value,max:sd.maxSupply&&sd.maxSupply.value};
-   const extra=await fetchEthplorer();
-   const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
-   if(text) textEl.value=text; else alert('Token description not found');
+  const extra=await fetchEthplorer();
+  const extra2=await fetchEtherscan();
+  const text=buildTokenomicsText(desc,{...supply,...extra.supply,...extra2.supply},{...extra.meta,...extra2.meta});
+  if(text) textEl.value=text; else alert('Token description not found');
   }catch(e){alert('Failed to search');}
 };
  try{
@@ -132,9 +145,10 @@ async function search(){
   const slug=data.id;
   const market=data.market_data||{};
   const supply={circulating:market.circulating_supply,total:market.total_supply,max:market.max_supply};
-  const extra=await fetchEthplorer();
-  const text=buildTokenomicsText(desc,{...supply,...extra.supply},extra.meta);
-  if(text) textEl.value=text; else await tryCoinMarketCap(slug);
+ const extra=await fetchEthplorer();
+ const extra2=await fetchEtherscan();
+ const text=buildTokenomicsText(desc,{...supply,...extra.supply,...extra2.supply},{...extra.meta,...extra2.meta});
+ if(text) textEl.value=text; else await tryCoinMarketCap(slug);
 }catch(e){alert('Failed to search');}
 spinner.hidden=true; searchBtn.disabled=false;
 }
